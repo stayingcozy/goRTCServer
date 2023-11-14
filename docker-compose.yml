@@ -1,0 +1,17 @@
+version: '3'
+services:
+  rtc: #container
+    build: .
+    ports:
+    - "8080:8080"
+    volumes: # mount volume
+      - rtc-data:/foo
+  cv: # container
+    image: 
+
+volumes:
+  rtc-data:
+
+
+# docker-compose up
+# close -> docker-compose down

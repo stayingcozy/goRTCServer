@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
@@ -30,6 +31,45 @@ import (
 )
 
 var rtpChan chan *rtp.Packet
+
+const MAX_JPG_FILES int = 50
+
+func remove(s []int, i int) []int {
+	s[i] = s[len(s)-1]
+	return s[:len(s)-1]
+}
+
+func jpgFileWrangler() int {
+	files, err := os.ReadDir("./")
+	if err != nil {
+		fmt.Println("Error reading the directory:", err)
+		return 0
+	}
+
+	jpgCount := 0
+
+	for _, file := range files {
+		if !file.IsDir() && strings.HasSuffix(file.Name(), ".jpg") {
+			jpgCount++
+		}
+	}
+
+	for jpgCount > MAX_JPG_FILES {
+		indexDel := rand.Intn((jpgCount - 2)) + 2 // shift by two to avoid deleting an image ML algo is reading
+		fileDel := files[indexDel]
+		if !fileDel.IsDir() && strings.HasSuffix(fileDel.Name(), ".jpg") {
+			e := os.Remove(fileDel.Name())
+			if e != nil {
+				log.Fatal(e)
+			}
+			jpgCount--
+		}
+	}
+
+	fmt.Printf("Number of .jpg files in the current folder: %d\n", jpgCount)
+
+	return jpgCount
+}
 
 func saveToDisk(i media.Writer, track *webrtc.TrackRemote) {
 	defer func() {
@@ -103,6 +143,7 @@ func snapshot() {
 		if err = jpeg.Encode(f, img, nil); err != nil {
 			panic(err)
 		}
+
 	}
 }
 
@@ -126,7 +167,11 @@ func main() {
 	// Initialize the Firebase Admin SDK
 	ctx := context.Background()
 
-	////////////////////////
+	///////////////////////
+
+	// go jpgFileWrangler() // Keep jpg file count in check to prevent overload
+
+	//////////////////////
 
 	// Create a MediaEngine object to configure the supported codec
 	m := &webrtc.MediaEngine{}
@@ -461,10 +506,11 @@ func main() {
 				}
 			}
 		}
+		// go jpgFileWrangler() // Keep jpg file count in check to prevent overload
 	}
 }
 
-// Below contains same code but save off images in frames folder. Seems to fail at a high 
+// Below contains same code but save off images in frames folder. Seems to fail at a high
 // rate for some reason
 
 // package main
