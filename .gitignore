@@ -1,3 +1,4 @@
 *.jpg
 *.ivf
 *.ogg
+.env

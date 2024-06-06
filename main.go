@@ -153,9 +153,9 @@ func main() {
 
 	//// Firebase init /////
 
-	const uid = "RJ0pPZEpmqPdiwMNBsuErIKU8zI3" // hardcode my uid
-	const path_to_serviceAccountKey = "brightpaw-d6fd6-firebase-adminsdk-qqfyk-248ef821b0.json"
-	const projectID = "brightpaw-d6fd6"
+	const uid = os.Getenv("UID") // hardcode my uid
+	const serviceAccountKey = os.Getenv("SERVICE_ACCOUNT_KEY")
+	const projectID = os.Getenv("PROJECT_ID")
 
 	// Initialize Cloud Firestore
 	opt := option.WithCredentialsFile(path_to_serviceAccountKey)
